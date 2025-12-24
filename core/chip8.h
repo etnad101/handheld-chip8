@@ -12,12 +12,13 @@
 const uint8_t FONT[FONT_SIZE];
 
 typedef struct {
-    uint8_t memory[MEM_SIZE];
     bool frame[FRAME_SIZE];
+    bool keys[0xF];
+    uint8_t memory[MEM_SIZE];
     uint16_t pc;
     uint16_t r_i;
     uint16_t sp;
-    uint8_t stack[32];
+    uint16_t stack[16];
     uint8_t delay_timer;
     uint8_t sound_timer;
     uint8_t r_v[16];
