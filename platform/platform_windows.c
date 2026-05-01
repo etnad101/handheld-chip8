@@ -1,8 +1,8 @@
-#include "SDL.h"
 #include "platform.h"
 #include "stdint.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include <SDL2/SDL.h>
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;

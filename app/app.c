@@ -1,8 +1,8 @@
 #include "app.h"
-#include "stdlib.h"
-#include "stdint.h"
 #include "../core/chip8.h"
 #include "../platform/platform.h"
+#include "stdint.h"
+#include "stdlib.h"
 
 int app_run() {
     // Initialize emulator
@@ -16,7 +16,7 @@ int app_run() {
     // Load ROM
     uint8_t* rom = NULL;
     int rom_size = platform_get_rom(&rom, "./roms/IBM Logo.ch8");
-    if ( rom_size < 0) {
+    if (rom_size < 0) {
         return -1;
     }
 
@@ -25,7 +25,7 @@ int app_run() {
     free(rom);
 
     // Start Emulator
-    while(platform_poll_events()) {
+    while (platform_poll_events()) {
         bool refresh_requested = chip8_tick(&chip8);
         if (refresh_requested) {
             platform_draw(chip8.frame);

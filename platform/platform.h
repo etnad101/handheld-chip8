@@ -1,6 +1,6 @@
 #pragma once
-#include "stdint.h"
 #include "stdbool.h"
+#include "stdint.h"
 
 int platform_init();
 int platform_get_rom(uint8_t** rom, const char* path);
