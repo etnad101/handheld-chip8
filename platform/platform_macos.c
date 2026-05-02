@@ -65,6 +65,8 @@ int platform_get_rom(uint8_t** rom, const char* path) {
     return (int)size;
 }
 
+void platform_free_rom(uint8_t* rom) { free(rom); }
+
 bool platform_poll_events() {
     SDL_PollEvent(&event);
     switch (event.type) {

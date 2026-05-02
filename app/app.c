@@ -4,9 +4,10 @@
 #include "stdint.h"
 #include "stdlib.h"
 
+static Chip8 chip8;
+
 int app_run() {
     // Initialize emulator
-    Chip8 chip8;
     chip8_init(&chip8);
 
     if (platform_init() < 0) {
@@ -22,7 +23,7 @@ int app_run() {
 
     chip8_load_rom(&chip8, rom, rom_size);
 
-    free(rom);
+    platform_free_rom(rom);
 
     // Start Emulator
     while (platform_poll_events()) {

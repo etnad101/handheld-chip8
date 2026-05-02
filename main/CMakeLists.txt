@@ -1,0 +1,12 @@
+idf_component_register(
+	SRCS
+		"main_esp32.c"
+		"../core/chip8.c"
+		"../app/app.c"
+		"../platform/platform_esp32.c"
+	INCLUDE_DIRS
+		"."
+		"../core"
+		"../app"
+		"../platform"
+)
