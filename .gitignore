@@ -2,4 +2,5 @@
 .cache/
 build/
 build_esp32/
+build_host/
 sdkconfig

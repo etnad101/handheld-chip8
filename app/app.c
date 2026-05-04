@@ -16,7 +16,7 @@ int app_run() {
 
     // Load ROM
     uint8_t* rom = NULL;
-    int rom_size = platform_get_rom(&rom, "./roms/IBM Logo.ch8");
+    int rom_size = platform_get_rom(&rom, "./roms/6-keypad.ch8");
     if (rom_size < 0) {
         return -1;
     }
@@ -26,7 +26,7 @@ int app_run() {
     platform_free_rom(rom);
 
     // Start Emulator
-    while (platform_poll_events()) {
+    while (platform_poll_events(chip8.keys)) {
         bool refresh_requested = chip8_tick(&chip8);
         if (refresh_requested) {
             platform_draw(chip8.frame);

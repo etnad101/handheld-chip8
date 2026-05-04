@@ -143,22 +143,22 @@ bool chip8_tick(Chip8* c) {
         case 0x4: {
             // ADD
             uint16_t sum = (uint16_t)vx + (uint16_t)vy;
+            c->r_v[(opcode & 0x0F00) >> 8] = (uint8_t)sum;
             if (sum > 255) {
                 c->r_v[0xF] = 1;
             } else {
                 c->r_v[0xF] = 0;
             }
-            c->r_v[(opcode & 0x0F00) >> 8] = (uint8_t)sum;
             break;
         }
         case 0x5:
             // Subtract
+            c->r_v[(opcode & 0x0F00) >> 8] = vx - vy;
             if (vx >= vy) {
                 c->r_v[0xF] = 1;
             } else {
                 c->r_v[0xF] = 0;
             }
-            c->r_v[(opcode & 0x0F00) >> 8] = vx - vy;
             break;
         case 0x6:
             // Shift
@@ -167,12 +167,12 @@ bool chip8_tick(Chip8* c) {
             break;
         case 0x7:
             // Subtract
+            c->r_v[(opcode & 0x0F00) >> 8] = vy - vx;
             if (vy >= vx) {
                 c->r_v[0xF] = 1;
             } else {
                 c->r_v[0xF] = 0;
             }
-            c->r_v[(opcode & 0x0F00) >> 8] = vy - vx;
             break;
         case 0xE:
             // Shift
