@@ -3,6 +3,7 @@
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "hal/gpio_types.h"
 #include "platform.h"
 #include "portmacro.h"
 #include "stdbool.h"
@@ -14,6 +15,18 @@
 #define PIN_DC 4
 #define PIN_RST 22
 
+// TODO: find what pins actually work input
+#define PIN_UP 8
+#define PIN_DOWN 9
+#define PIN_LEFT 10
+#define PIN_RIGHT 11
+#define PIN_ACTION_1 12
+#define PIN_ACTION_2 13
+#define PIN_ACTION_3 14
+#define PIN_ACTION_4 15
+#define PIN_ACTION_5 16
+#define PIN_ACTION_6 17
+
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 240
 #define PIXEL_SIZE 5
@@ -22,6 +35,10 @@
 static spi_device_handle_t spi;
 static uint16_t framebuffer[FB_SIZE];
 static uint8_t rom_buffer[3584];
+// Index = key array index, value = pin
+static uint8_t button_map[0x10] = {PIN_ACTION_2, PIN_ACTION_3, PIN_UP,       PIN_ACTION_4, PIN_LEFT, PIN_ACTION_1,
+                                   PIN_RIGHT,    255,          PIN_DOWN,     255,          255,      255,
+                                   255,          255,          PIN_ACTION_5, PIN_ACTION_6};
 
 static void send_cmd(uint8_t cmd) {
     gpio_set_level(PIN_DC, 0);
@@ -39,6 +56,24 @@ static void send_data(uint8_t data) {
         .tx_buffer = &data,
     };
     spi_device_transmit(spi, &t);
+}
+
+static esp_err_t init_pins() {
+    // Configure RST and DC as outputs
+    gpio_reset_pin(PIN_RST);
+    gpio_reset_pin(PIN_DC);
+    gpio_set_direction(PIN_RST, GPIO_MODE_OUTPUT);
+    gpio_set_direction(PIN_DC, GPIO_MODE_OUTPUT);
+
+    // Configure buttons as inputs
+    for (int i = 0; i < 0x10; i++) {
+        uint8_t pin = button_map[i];
+        if (pin > 0x10) {
+            continue;
+        }
+        ESP_ERROR_CHECK(gpio_reset_pin(pin));
+        ESP_ERROR_CHECK(gpio_set_direction(pin, GPIO_MODE_INPUT));
+    }
 }
 
 static void st7789_init() {
@@ -146,11 +181,7 @@ void fb_draw_rect(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t colou
 }
 
 int platform_init() {
-    // Configure RST and DC as outputs
-    gpio_reset_pin(PIN_RST);
-    gpio_reset_pin(PIN_DC);
-    gpio_set_direction(PIN_RST, GPIO_MODE_OUTPUT);
-    gpio_set_direction(PIN_DC, GPIO_MODE_OUTPUT);
+    init_pins();
 
     // SPI bus config
     spi_bus_config_t bus = {
@@ -199,8 +230,16 @@ int platform_get_rom(uint8_t** rom, const char* path) {
 
 void platform_free_rom(uint8_t* rom) { (void)rom; }
 
-bool platform_poll_events() {
-    vTaskDelay(1);
+bool platform_poll_events(bool* keys) {
+    for (int i = 0; i < 0x10; i++) {
+        int pin = button_map[i];
+        if (pin > 0x10) {
+            continue;
+        }
+
+        int level = gpio_get_level(pin);
+        keys[i] = level > 0;
+    }
     return true;
 };
 
