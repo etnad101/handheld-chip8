@@ -1,8 +1,6 @@
 #include "chip8.h"
 #include <stdlib.h>
 
-// TODO: decrement timers
-
 const uint8_t FONT[80] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -60,6 +58,17 @@ void chip8_draw(Chip8* c, uint8_t x, uint8_t y, uint8_t n) {
 
             // XOR pixel
             c->frame[index] ^= 1;
+        }
+    }
+}
+
+void chip8_decrement_timers(Chip8* c, bool should_decrement) {
+    if (should_decrement) {
+        if (c->delay_timer > 0) {
+            c->delay_timer -= 1;
+        }
+        if (c->sound_timer > 0) {
+            c->sound_timer -= 1;
         }
     }
 }
@@ -230,9 +239,25 @@ bool chip8_tick(Chip8* c) {
             c->r_v[(opcode & 0x0F00) >> 8] = c->delay_timer;
             break;
         case 0x0A: {
-            // TODO
-            // Get Key
-            c->pc -= 2;
+            bool register_keypress = false;
+            for (int i = 0; i < 0x10; i++) {
+                if (!c->prev_keys_down[i]) {
+                    if (c->keys[i]) {
+                        c->prev_keys_down[i] = true;
+                    }
+                } else {
+                    if (!c->keys[i]) {
+                        c->r_v[(opcode & 0x0F00) >> 8] = i;
+                        c->prev_keys_down[i] = false;
+                        register_keypress = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!register_keypress) {
+                c->pc -= 2;
+            }
             break;
         }
         case 0x15:
